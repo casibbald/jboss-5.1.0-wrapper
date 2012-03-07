@@ -25,6 +25,7 @@
       <property name="applicationURIs">
          <list elementClass="java.net.URI">
             <value>${jboss.server.home.url}deploy</value>
+	    <value>${jboss.server.home.url}../apps</value>
          </list>
       </property>
       <!-- Optional list of URIs that will be kept in sync across the cluster.
