@@ -27,9 +27,6 @@
          <parameter>
             <set>
                <inject bean="PortsDefaultBindings"/>
-               <inject bean="Ports01Bindings"/>
-               <inject bean="Ports02Bindings"/>
-               <inject bean="Ports03Bindings"/>
             </set>
          </parameter>
          
@@ -49,48 +46,6 @@
          <parameter>${jboss.bind.address}</parameter>
          <!-- The port offset -->
          <parameter>0</parameter>
-         <!-- Set of bindings to which the "offset by X" approach can't be applied -->
-         <parameter><null/></parameter>
-      </constructor>
-   </bean>
-
-   <!-- The ports-01 bindings are obtained by taking the base bindings and adding 100 to each port value -->
-   <bean name="Ports01Bindings" class="org.jboss.services.binding.impl.ServiceBindingSet">
-      <constructor>
-         <!--  The name of the set -->
-         <parameter>ports-01</parameter>
-         <!-- Default host name -->
-         <parameter>${jboss.bind.address}</parameter>
-         <!-- The port offset -->
-         <parameter>100</parameter>
-         <!-- Set of bindings to which the "offset by X" approach can't be applied -->
-         <parameter><null/></parameter>
-      </constructor>
-   </bean>
-
-   <!-- The ports-02 bindings are obtained by taking ports-default and adding 200 to each port value -->
-   <bean name="Ports02Bindings" class="org.jboss.services.binding.impl.ServiceBindingSet">
-      <constructor>
-         <!--  The name of the set -->
-         <parameter>ports-02</parameter>
-         <!-- Default host name -->
-         <parameter>${jboss.bind.address}</parameter>
-         <!-- The port offset -->
-         <parameter>200</parameter>
-         <!-- Set of bindings to which the "offset by X" approach can't be applied -->
-         <parameter><null/></parameter>
-      </constructor>
-   </bean>
-
-   <!-- The ports-03 bindings are obtained by taking ports-default and adding 300 to each port value -->
-   <bean name="Ports03Bindings" class="org.jboss.services.binding.impl.ServiceBindingSet">
-      <constructor>
-         <!--  The name of the set -->
-         <parameter>ports-03</parameter>
-         <!-- Default host name -->
-         <parameter>${jboss.bind.address}</parameter>
-         <!-- The port offset -->
-         <parameter>300</parameter>
          <!-- Set of bindings to which the "offset by X" approach can't be applied -->
          <parameter><null/></parameter>
       </constructor>
