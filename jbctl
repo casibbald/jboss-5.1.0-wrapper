@@ -2,24 +2,38 @@
 set -eu
 set -o pipefail
 
+chmod +x ./lib/config.sh
+
+. ./lib/config.sh
+
 function get_seconds_since_epoch {
     perl -e "print time;"
 }
 
 # Normalise scripts running location.
-cd "$(dirname "${0}")"
-export DOMAIN_DIR="$(pwd)"
+if uname -s | grep CYG > /dev/null 2>&1 ; then
+   DOMAIN_DIR=`cygpath -m -a .`
+   URI_PREFIX="file:/"
+else
+   cd "$(dirname "${0}")"
+   export DOMAIN_DIR="$(pwd)"
+   URI_PREFIX="file:"
+fi
+
+# Clean up previous temp directories.
+echo "========================================================================="
+echo "   Cleaning up JBoss temporary directories in preparation for JVM Launch"
+echo
+for dir in data log tmp; do
+    rm -rf ${SERVER_NAME}/${dir}
+done;
 
 
-#Setup some basic Variables
-URI_PREFIX='file:'
-DOMAIN_DIR=/opt/pyjboss-5.1.0-wrapper
-SERVER_NAME=runtime
 
 ${JBOSS_HOME}/bin/run.sh -Djboss.server.base.url=${URI_PREFIX}${DOMAIN_DIR} \
                          -Djboss.server.base.dir=${DOMAIN_DIR} \
                          -Djboss.server.name=${SERVER_NAME} \
-                         -Djboss.server.apps=${DOMAIN_DIR}/apps
+                         -Djboss.server.apps=${DOMAIN_DIR}/apps \
                          -c runtime
 
 
