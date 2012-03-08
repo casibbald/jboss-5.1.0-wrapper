@@ -7,15 +7,13 @@ function get_seconds_since_epoch {
 #Setup some basic Variables
 URI_PREFIX='file:'
 SERVER_NAME=runtime
-PID_FILE=pid
+PIDFILE=pid
 JAVA_OPTIONS=''
-CLASSPATH=''
+SEP=':'
 LD_LIBRARY_PATH=''
-
-# Basic checks for dependencies
-# /opt/local/sbin/cronolog
-
 NOHUP_OUT_DIR="${NOHUP_OUT_DIR:-logs}"
+
+
 
 case $(uname) in
 
@@ -38,8 +36,13 @@ case $(uname) in
                 echo "consider installing under /opt/local/share"
                 exit 1
             fi
-            
         fi
+
+        if [ ! -f  '/opt/local/sbin/cronolog' ] ; then
+            echo "Please install cronolog using macports"
+            exit 1
+        fi
+
 
     ;;
         
