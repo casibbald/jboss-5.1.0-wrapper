@@ -1,4 +1,11 @@
 #!/usr/bin/env bash
+###############################################################################
+#
+# Author     : Charles Sibbald
+# Email      : casibbald at gmail dot com
+#
+###############################################################################
+
 set -eu
 set -o pipefail
 
@@ -43,6 +50,7 @@ case "${COMMAND}" in
         echo "  JAVA_HOME            : $JAVA_HOME"
         echo "  DOMAIN_DIR           : $DOMAIN_DIR"
         echo "  NOHUP_OUT_DIR        : $NOHUP_OUT_DIR"
+        echo "  RUNTIME_DIR          : $SERVER_NAME"
         echo "======================================================================="
         echo
 
@@ -53,7 +61,7 @@ case "${COMMAND}" in
               -Djboss.server.apps=${DOMAIN_DIR}/apps \
               -Djboss.server.log.dir=${DOMAIN_DIR}/logs \
               -b 0.0.0.0 \
-              -c runtime &
+              -c ${SERVER_NAME} &
         echo $! > $PIDFILE
         ) | cronolog >/dev/null 2>&1 "${NOHUP_OUT_DIR}/nohup.out_%Y%m%d_%H" &
 
