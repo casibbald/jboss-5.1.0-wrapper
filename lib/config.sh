@@ -55,7 +55,17 @@ case $(uname) in
         echo
     
     ;;
+
+    Solaris)
+        echo
     
+    ;;
+    
+    bsd)
+        echo
+    
+    ;;
+
 esac  
     
 
