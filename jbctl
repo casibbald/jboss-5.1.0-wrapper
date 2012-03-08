@@ -54,7 +54,7 @@ case "${COMMAND}" in
               -Djboss.server.log.dir=${DOMAIN_DIR}/logs \
               -b 0.0.0.0 \
               -c runtime &
-        echo $! > $PID_FILE
+        echo $! > $PIDFILE
         ) | cronolog >/dev/null 2>&1 "${NOHUP_OUT_DIR}/nohup.out_%Y%m%d_%H" &
 
 
