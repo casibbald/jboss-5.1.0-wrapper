@@ -71,10 +71,36 @@ case "${COMMAND}" in
     stop)
     
     ;;
-    
-    kill)
-    
-    ;;
+
+Ê Ê kill)
+ Ê Ê Ê if [ -f "${PIDFILE}" ] ; then
+ Ê Ê Ê Ê Ê Ê ÊPID=`cat ${PIDFILE}`
+ Ê Ê Ê Ê Ê Ê Êif [ -n "${PID}" ] ; then
+ Ê Ê Ê Ê Ê Ê Ê Ê PID_STATUS=`ps -p "${PID}" |grep -v "PID"`
+ Ê Ê Ê Ê Ê Ê Ê Ê if [ "${PID_STATUS}" = "" ] ; then
+ Ê Ê Ê Ê Ê Ê Ê Ê Ê ÊPID_STATUS="0"
+ Ê Ê Ê Ê Ê Ê Ê Ê else
+ Ê Ê Ê Ê Ê Ê Ê Ê Ê ÊPID_STATUS="1"
+ Ê Ê Ê Ê Ê Ê Ê Ê fi
+ Ê Ê Ê Ê Ê Ê Êelse
+ Ê Ê Ê Ê Ê Ê Ê Ê echo "No PID found in ${PIDFILE}"
+ Ê Ê Ê Ê Ê Ê Êfi
+ Ê Ê Ê Ê Ê Ê Êif [ "$PID_STATUS" = "1" ] ; then
+ Ê Ê Ê Ê Ê Ê Ê Ê Êecho " Ê Ê Killing JBoss at PID ${PID} ..."
+ Ê Ê Ê Ê Ê Ê Ê Ê Êkill -9 ${PID}
+ Ê Ê Ê Ê Ê Ê Ê Ê Êrm -f ${PIDFILE}
+
+ Ê Ê Ê Ê Ê Ê Ê Ê Êexit 0
+ Ê Ê Ê Ê Ê Ê Êelse
+ Ê Ê Ê Ê Ê Ê Ê Ê Êecho "PID file indicates PID ${PID}, which is not running."
+ Ê Ê Ê Ê Ê Ê Ê Ê Êexit 0
+ Ê Ê Ê Ê Ê Ê Êfi
+ Ê Ê Ê Ê Êelse
+ Ê Ê Ê Ê Ê Ê Êecho "No Êpid file available."
+ Ê Ê Ê Ê Ê Ê Êexit 0
+ Ê Ê Ê Ê Êfi
+ Ê Ê;;
+
 
 esac
 
