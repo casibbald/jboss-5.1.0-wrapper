@@ -1,0 +1,25 @@
+#!/usr/bin/env bash
+set -eu
+set -o pipefail
+
+function get_seconds_since_epoch {
+    perl -e "print time;"
+}
+
+# Normalise scripts running location.
+cd "$(dirname "${0}")"
+export DOMAIN_DIR="$(pwd)"
+
+
+#Setup some basic Variables
+URI_PREFIX='file:'
+DOMAIN_DIR=/opt/pyjboss-5.1.0-wrapper
+SERVER_NAME=runtime
+
+${JBOSS_HOME}/bin/run.sh -Djboss.server.base.url=${URI_PREFIX}${DOMAIN_DIR} \
+                         -Djboss.server.base.dir=${DOMAIN_DIR} \
+                         -Djboss.server.name=${SERVER_NAME} \
+                         -Djboss.server.apps=${DOMAIN_DIR}/apps
+                         -c runtime
+
+
