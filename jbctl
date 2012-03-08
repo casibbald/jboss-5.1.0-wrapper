@@ -3,6 +3,11 @@ set -eu
 set -o pipefail
 
 chmod +x ./lib/config.sh
+COMMAND=$1
+if [ $1 == '' ]; then
+    echo 'Please pass one of the following options: start | stop | kill'
+    exit 1
+fi
 
 . ./lib/config.sh
 
@@ -20,20 +25,52 @@ else
    URI_PREFIX="file:"
 fi
 
-# Clean up previous temp directories.
-echo "========================================================================="
-echo "   Cleaning up JBoss temporary directories in preparation for JVM Launch"
-echo
-for dir in data log tmp; do
-    rm -rf ${SERVER_NAME}/${dir}
-done;
+case "${COMMAND}" in
+##############################        start  #################################
+    start)
+
+        # Clean up previous temp directories.
+        echo "========================================================================="
+        echo "   Cleaning up JBoss temporary directories in preparation for JVM Launch"
+        echo
+        for dir in data log tmp; do
+           rm -rf ${SERVER_NAME}/${dir}
+        done;
+
+        echo "======================================================================="
+        echo "  JBOSS_HOME           : $JBOSS_HOME"
+        echo "  JAVA_HOME            : $JAVA_HOME"
+        echo "  JAVA_OPTIONS         : $JAVA_OPTIONS"
+        echo "  CLASSPATH            : $CLASSPATH"
+        echo "  LD_LIBRARY_PATH      : $LD_LIBRARY_PATH"
+        echo "  DOMAIN_DIR           : $DOMAIN_DIR"
+        echo "  NOHUP_OUT_DIR        : $NOHUP_OUT_DIR"
+        echo "======================================================================="
+        echo
+
+        (
+        nohup ${JBOSS_HOME}/bin/run.sh -Djboss.server.base.url=${URI_PREFIX}${DOMAIN_DIR} \
+              -Djboss.server.base.dir=${DOMAIN_DIR} \
+              -Djboss.server.name=${SERVER_NAME} \
+              -Djboss.server.apps=${DOMAIN_DIR}/apps \
+              #-Djboss.patch.url=${DOMAIN_DIR}/${SERVER_NAME}/lib \
+              -b 0.0.0.0 \
+              -c runtime \
+              2>&1 ${NOHUP_OUT_DIR}/console.log &
+        echo $! > $PID_FILE
+        ) | cronolog >/dev/null 2>&1 "${NOHUP_OUT_DIR}/nohup.out_%Y%m%d_%H" &
 
 
+     ;;
 
-${JBOSS_HOME}/bin/run.sh -Djboss.server.base.url=${URI_PREFIX}${DOMAIN_DIR} \
-                         -Djboss.server.base.dir=${DOMAIN_DIR} \
-                         -Djboss.server.name=${SERVER_NAME} \
-                         -Djboss.server.apps=${DOMAIN_DIR}/apps \
-                         -c runtime
+    stop)
+    
+    ;;
+    
+    kill)
+    
+    ;;
+
+esac
 
 
