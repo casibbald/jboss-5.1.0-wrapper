@@ -6,7 +6,14 @@ function get_seconds_since_epoch {
 
 #Setup some basic Variables
 URI_PREFIX='file:'
-SERVER_NAME=runtime
+if [ ! -n JBOSS_VERSION ]; then
+    export SERVER_NAME='runtime/5.1.0'
+elif [ JBOSS_VERSION=='5.1.0' ]; then
+    export SERVER_NAME='runtime/5.1.0'
+elif [ JBOSS_VERSION=='7.1.0' ]; then
+    export SERVER_NAME='runtime/7.1.0'
+fi
+
 PIDFILE=pid
 JAVA_OPTIONS=''
 SEP=':'
