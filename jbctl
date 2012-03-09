@@ -5,6 +5,7 @@
 # Email      : casibbald at gmail dot com
 #
 ###############################################################################
+#set -x
 
 set -eu
 set -o pipefail
@@ -12,7 +13,7 @@ set -o pipefail
 chmod +x ./lib/config.sh
 COMMAND=$1
 if [ $1 == '' ]; then
-    echo 'Please pass one of the following options: start | stop | kill'
+    echo "Please pass one of the following options: start | stop | kill"
     exit 1
 fi
 
@@ -54,52 +55,54 @@ case "${COMMAND}" in
         echo "======================================================================="
         echo
 
-        (
-        nohup ${JBOSS_HOME}/bin/run.sh -Djboss.server.base.url=${URI_PREFIX}${DOMAIN_DIR} \
-              -Djboss.server.base.dir=${DOMAIN_DIR} \
-              -Djboss.server.name=${SERVER_NAME} \
-              -Djboss.server.apps=${DOMAIN_DIR}/apps \
-              -Djboss.server.log.dir=${DOMAIN_DIR}/logs \
-              -b 0.0.0.0 \
-              -c ${SERVER_NAME} &
-        echo $! > $PIDFILE
-        ) | cronolog >/dev/null 2>&1 "${NOHUP_OUT_DIR}/nohup.out_%Y%m%d_%H" &
 
+        (
+        nohup ${JAVA_HOME}/bin/java ${JAVA_OPTIONS} \
+              -classpath "${CLASSPATH}" \
+               org.jboss.Main \
+              -Djboss.server.base.url="${URI_PREFIX}${DOMAIN_DIR}" \
+              -Djboss.server.base.dir="${DOMAIN_DIR}" \
+              -Djboss.server.name="${SERVER_NAME}" \
+              -Djboss.server.apps="${DOMAIN_DIR}/apps" \
+              -Djboss.server.log.dir="${DOMAIN_DIR}/logs" \
+              -b "${INTERFACE}" \
+              -c "${SERVER_NAME}" &
+        echo $! > $PIDFILE
+        ) | cronolog >/dev/null 2>&1 "${DOMAIN_DIR}/${NOHUP_OUT_DIR}/nohup.out_%Y%m%d_%H" --link="${DOMAIN_DIR}/${NOHUP_OUT_DIR}/nohup.out" &
 
      ;;
 
     stop)
     
     ;;
-
-Ê Ê kill)
- Ê Ê Ê if [ -f "${PIDFILE}" ] ; then
- Ê Ê Ê Ê Ê Ê ÊPID=`cat ${PIDFILE}`
- Ê Ê Ê Ê Ê Ê Êif [ -n "${PID}" ] ; then
- Ê Ê Ê Ê Ê Ê Ê Ê PID_STATUS=`ps -p "${PID}" |grep -v "PID"`
- Ê Ê Ê Ê Ê Ê Ê Ê if [ "${PID_STATUS}" = "" ] ; then
- Ê Ê Ê Ê Ê Ê Ê Ê Ê ÊPID_STATUS="0"
- Ê Ê Ê Ê Ê Ê Ê Ê else
- Ê Ê Ê Ê Ê Ê Ê Ê Ê ÊPID_STATUS="1"
- Ê Ê Ê Ê Ê Ê Ê Ê fi
- Ê Ê Ê Ê Ê Ê Êelse
- Ê Ê Ê Ê Ê Ê Ê Ê echo "No PID found in ${PIDFILE}"
- Ê Ê Ê Ê Ê Ê Êfi
- Ê Ê Ê Ê Ê Ê Êif [ "$PID_STATUS" = "1" ] ; then
- Ê Ê Ê Ê Ê Ê Ê Ê Êecho " Ê Ê Killing JBoss at PID ${PID} ..."
- Ê Ê Ê Ê Ê Ê Ê Ê Êkill -9 ${PID}
- Ê Ê Ê Ê Ê Ê Ê Ê Êrm -f ${PIDFILE}
-
- Ê Ê Ê Ê Ê Ê Ê Ê Êexit 0
- Ê Ê Ê Ê Ê Ê Êelse
- Ê Ê Ê Ê Ê Ê Ê Ê Êecho "PID file indicates PID ${PID}, which is not running."
- Ê Ê Ê Ê Ê Ê Ê Ê Êexit 0
- Ê Ê Ê Ê Ê Ê Êfi
- Ê Ê Ê Ê Êelse
- Ê Ê Ê Ê Ê Ê Êecho "No Êpid file available."
- Ê Ê Ê Ê Ê Ê Êexit 0
- Ê Ê Ê Ê Êfi
- Ê Ê;;
+ 
+    kill)
+        if [ -f "${PIDFILE}" ] ; then
+            PID=`cat ${PIDFILE}`
+            if [ -n "${PID}" ] ; then
+                PID_STATUS=`ps -p "${PID}" |grep -v "PID"`
+                if [ "${PID_STATUS}" = "" ] ; then
+                    PID_STATUS="0"
+                else
+                    PID_STATUS="1"
+                fi
+            else
+                echo "No PID found in ${PIDFILE}"
+            fi
+            
+            if [ "$PID_STATUS" = "1" ] ; then
+                echo " Killing JBoss at PID ${PID} ..."
+                kill -9 ${PID}
+                rm -f ${PIDFILE}
+                exit 0
+            else
+                echo "PID file indicates PID ${PID}, which is not running."
+                exit 0
+            fi
+        else
+            echo "No <CA>pid file available."
+            exit 0
+        fi
 
 
 esac
