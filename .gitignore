@@ -1,7 +1,9 @@
 *.komodoproject
+apps/*
 logs/*
 logs/*
 pid
 runtime/5.1.0/data*
 runtime/5.1.0/log*
 runtime/5.1.0/tmp*
+runtime/5.1.0/work*
