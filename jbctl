@@ -1,9 +1,25 @@
 #!/usr/bin/env bash
 ###############################################################################
 #
-# Author     : Charles Sibbald
-# Email      : casibbald at gmail dot com
-#
+# Author          : Charles Sibbald
+# Email           : casibbald at gmail dot com
+# Contributors    : Attila Faludi, Peter Moore
+# License         : BSD
+# Copyright (c) 2012 Origami Planes Ltd.
+# All rights reserved, exluding that of external software or modules from 3rd
+# Parties.
+# Redistribution and use in source and binary forms are permitted
+# provided that the above copyright notice and this paragraph are
+# duplicated in all such forms and that any documentation,
+# advertising materials, and other materials related to such
+# distribution and use acknowledge that the software was developed
+# by the <organization>.  The name of the
+# University may not be used to endorse or promote products derived
+# from this software without specific prior written permission.
+# THIS SOFTWARE IS PROVIDED ``AS IS'' AND WITHOUT ANY EXPRESS OR
+# IMPLIED WARRANTIES, INCLUDING, WITHOUT LIMITATION, THE IMPLIED
+# WARRANTIES OF MERCHANTABILITY AND FITNESS FOR A PARTICULAR PURPOSE.
+# 
 ###############################################################################
 #set -x
 
@@ -35,26 +51,28 @@ fi
 
 
 case "${COMMAND}" in
-##############################        start  #################################
     start)
 
         # Clean up previous temp directories.
         echo "========================================================================="
         echo "   Cleaning up JBoss temporary directories in preparation for JVM Launch"
+        echo "   This may take a while"
         echo
         for dir in data log tmp; do
-           rm -rf ${SERVER_NAME}/${dir}
+            echo "   Cleaning out ${SERVER_NAME}/${dir}"
+            rm -rf ${SERVER_NAME}/${dir}
         done;
         
         echo "======================================================================="
         echo "  JBOSS_HOME           : $JBOSS_HOME"
         echo "  JAVA_HOME            : $JAVA_HOME"
         echo "  DOMAIN_DIR           : $DOMAIN_DIR"
-        echo "  NOHUP_OUT_DIR        : $NOHUP_OUT_DIR"
+        echo "  NOHUP_OUT_DIR        : ${DOMAIN_DIR}/$NOHUP_OUT_DIR"
         echo "  RUNTIME_DIR          : $SERVER_NAME"
         echo "======================================================================="
         echo
 
+        #python lib/configure.py
 
         (
         nohup ${JAVA_HOME}/bin/java ${JAVA_OPTIONS} \
@@ -100,7 +118,7 @@ case "${COMMAND}" in
                 exit 0
             fi
         else
-            echo "No <CA>pid file available."
+            echo "No pid file available."
             exit 0
         fi
 
