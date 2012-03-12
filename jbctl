@@ -73,74 +73,52 @@ case "${COMMAND}" in
         echo
 
         #python lib/configure.py
-
-        (
-        nohup ${JAVA_HOME}/bin/java ${JAVA_OPTIONS} \
-              -classpath "${CLASSPATH}" \
-               org.jboss.Main \
-              -Djboss.server.base.url="${URI_PREFIX}${DOMAIN_DIR}" \
-              -Djboss.server.base.dir="${DOMAIN_DIR}" \
-              -Djboss.server.name="${SERVER_NAME}" \
-              -Djboss.server.apps="${DOMAIN_DIR}/apps" \
-              -Djboss.server.log.dir="${DOMAIN_DIR}/logs" \
-              -b "${INTERFACE}" \
-              -c "${SERVER_NAME}" &
-        echo $! > $PIDFILE
-        ) | "${CRONOLOG}" >/dev/null 2>&1 "${DOMAIN_DIR}/${NOHUP_OUT_DIR}/nohup.out_%Y%m%d_%H" --link="${DOMAIN_DIR}/${NOHUP_OUT_DIR}/nohup.out" &
-
+        PID_STATUS=get_wrapper_run_status
+        if [ "$PID_STATUS" != "1" ];then
+            (
+            #Do not quote JAVA_OPTIONS
+            nohup ${JAVA_HOME}/bin/java ${JAVA_OPTIONS} \
+                  -classpath "${CLASSPATH}" \
+                   org.jboss.Main \
+                  -Djboss.server.base.url="${URI_PREFIX}${DOMAIN_DIR}" \
+                  -Djboss.server.base.dir="${DOMAIN_DIR}" \
+                  -Djboss.server.name="${SERVER_NAME}" \
+                  -Djboss.server.apps="${DOMAIN_DIR}/apps" \
+                  -Djboss.server.log.dir="${DOMAIN_DIR}/logs" \
+                  -b "${INTERFACE}" \
+                  -c "${SERVER_NAME}" &
+            echo $! > $PIDFILE
+            ) | "${CRONOLOG}" >/dev/null 2>&1 "${DOMAIN_DIR}/${NOHUP_OUT_DIR}/nohup.out_%Y%m%d_%H" --link="${DOMAIN_DIR}/${NOHUP_OUT_DIR}/nohup.out" &
+        else
+            echo "Jboss Container already running"
+            exit 1
+        fi
     ;;
 
     status)
-        #This code should be moved to a function.
-        if [ -f "${PIDFILE}" ] ; then
-            PID=`cat ${PIDFILE}`
-            if [ -n "${PID}" ] ; then
-                PID_STATUS=`ps -p "${PID}" |grep -v "PID"`
-                if [ "${PID_STATUS}" = "" ] ; then
-                    PID_STATUS="0"
-                else
-                    PID_STATUS="1"
-                fi
-            else
-                echo "No PID found in ${PIDFILE}"
-            fi
-        else
-            echo "No pid file available."
-            exit 0
-        fi
+        get_wrapper_run_status
         
     ;;
     
     
     stop)
-    
+        JBOSS_BOOT_CLASSPATH="${JBOSS_HOME}/bin/shutdown.jar:${JBOSS_HOME}/client/jbossall-client.jar"
+        CLASSPATH="${CLASSPATH}:${JBOSS_BOOT_CLASSPATH}"
+        #Do not quote JAVA_OPTIONS
+        ${JAVA_HOME}/bin/java ${JAVA_OPTIONS} -classpath "${CLASSPATH}" org.jboss.Shutdown "$@"
+
     ;;
  
     kill)
-        if [ -f "${PIDFILE}" ] ; then
-            PID=`cat ${PIDFILE}`
-            if [ -n "${PID}" ] ; then
-                PID_STATUS=`ps -p "${PID}" |grep -v "PID"`
-                if [ "${PID_STATUS}" = "" ] ; then
-                    PID_STATUS="0"
-                else
-                    PID_STATUS="1"
-                fi
-            else
-                echo "No PID found in ${PIDFILE}"
-            fi
-            
-            if [ "$PID_STATUS" = "1" ] ; then
-                echo " Killing JBoss at PID ${PID} ..."
-                kill -9 ${PID}
-                rm -f ${PIDFILE}
-                exit 0
-            else
-                echo "PID file indicates PID ${PID}, which is not running."
-                exit 0
-            fi
+        PID_STATUS=get_wrapper_run_status
+        PID=`cat ${PIDFILE}`
+        if [ "$PID_STATUS" = "1" ] ; then
+            echo " Killing JBoss at PID ${PID} ..."
+            kill -9 ${PID}
+            rm -f ${PIDFILE}
+            exit 0
         else
-            echo "No pid file available."
+            echo "PID file indicates PID ${PID}, is not running."
             exit 0
         fi
 

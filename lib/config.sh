@@ -103,7 +103,7 @@ case $(uname) in
                 export JAVA_HOME='/usr/lib/jvm/java-6-sun'
             elif [ -d '/usr/lib/jvm/java-6-openjdk' ] ; then
                 export JAVA_HOME='/usr/lib/jvm/java-6-openjdk'
-            else [ -d '/usr/lib/jvm/default-java' ] ; then
+            else [ -d '/usr/lib/jvm/default-java' ]
                 export JAVA_HOME='/usr/lib/jvm/default-java'
             fi
         fi
@@ -181,3 +181,26 @@ fi
 
 export PIDFILE=pid
 export NOHUP_OUT_DIR="${NOHUP_OUT_DIR:-logs}"
+
+
+function get_wrapper_run_status {
+    if [ -f "${PIDFILE}" ] ; then
+        PID=`cat ${PIDFILE}`
+        if [ -n "${PID}" ] ; then
+            PID_STATUS=`ps -p "${PID}" |grep -v "PID"`
+            if [ "${PID_STATUS}" = "" ] ; then
+                PID_STATUS="0"
+            else
+                PID_STATUS="1"
+            fi
+            return "${PID_STATUS}"
+        else
+            echo "No PID found in ${PIDFILE}"
+            return 3
+        fi
+    else
+        echo "No pid file available."
+        return 4
+    fi
+}
+
