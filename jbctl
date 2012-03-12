@@ -86,10 +86,32 @@ case "${COMMAND}" in
               -b "${INTERFACE}" \
               -c "${SERVER_NAME}" &
         echo $! > $PIDFILE
-        ) | cronolog >/dev/null 2>&1 "${DOMAIN_DIR}/${NOHUP_OUT_DIR}/nohup.out_%Y%m%d_%H" --link="${DOMAIN_DIR}/${NOHUP_OUT_DIR}/nohup.out" &
+        ) | "${CRONOLOG}" >/dev/null 2>&1 "${DOMAIN_DIR}/${NOHUP_OUT_DIR}/nohup.out_%Y%m%d_%H" --link="${DOMAIN_DIR}/${NOHUP_OUT_DIR}/nohup.out" &
 
-     ;;
+    ;;
 
+    status)
+        #This code should be moved to a function.
+        if [ -f "${PIDFILE}" ] ; then
+            PID=`cat ${PIDFILE}`
+            if [ -n "${PID}" ] ; then
+                PID_STATUS=`ps -p "${PID}" |grep -v "PID"`
+                if [ "${PID_STATUS}" = "" ] ; then
+                    PID_STATUS="0"
+                else
+                    PID_STATUS="1"
+                fi
+            else
+                echo "No PID found in ${PIDFILE}"
+            fi
+        else
+            echo "No pid file available."
+            exit 0
+        fi
+        
+    ;;
+    
+    
     stop)
     
     ;;
