@@ -96,7 +96,13 @@ case "${COMMAND}" in
     ;;
 
     status)
-        get_wrapper_run_status
+        if [ get_wrapper_run_status == "0" ]; then
+            echo "JBoss Container running"
+            exit 0
+        else
+            echo "JBoss Container not running"
+            exit 1
+        fi
         
     ;;
     
