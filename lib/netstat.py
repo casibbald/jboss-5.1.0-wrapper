@@ -1,5 +1,6 @@
+# vim: tabstop=4 shiftwidth=4 softtabstop=4
 #!/usr/bin/env python
- 
+
 import pwd
 import os
 import re

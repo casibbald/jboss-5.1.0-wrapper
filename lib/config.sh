@@ -1,4 +1,5 @@
 #!/usr/bin/env bash
+# vim: tabstop=4 shiftwidth=4 softtabstop=4
 ###############################################################################
 #
 # Author          : Charles Sibbald
