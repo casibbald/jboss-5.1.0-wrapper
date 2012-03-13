@@ -1,4 +1,26 @@
 #!/usr/bin/env bash
+###############################################################################
+#
+# Author          : Charles Sibbald
+# Email           : casibbald at gmail dot com
+# Contributors    : Attila Faludi, Peter Moore
+# License         : BSD
+# Copyright (c) 2012 Origami Planes Ltd.
+# All rights reserved, exluding that of external software or modules from 3rd
+# Parties.
+# Redistribution and use in source and binary forms are permitted
+# provided that the above copyright notice and this paragraph are
+# duplicated in all such forms and that any documentation,
+# advertising materials, and other materials related to such
+# distribution and use acknowledge that the software was developed
+# by the <organization>.  The name of the
+# University may not be used to endorse or promote products derived
+# from this software without specific prior written permission.
+# THIS SOFTWARE IS PROVIDED ``AS IS'' AND WITHOUT ANY EXPRESS OR
+# IMPLIED WARRANTIES, INCLUDING, WITHOUT LIMITATION, THE IMPLIED
+# WARRANTIES OF MERCHANTABILITY AND FITNESS FOR A PARTICULAR PURPOSE.
+# 
+###############################################################################
 
 function get_seconds_since_epoch {
     perl -e "print time;"
@@ -165,10 +187,25 @@ case $(uname) in
     ;;
 
 esac  
-    
+
+#PREPEND_CLASSPATH=
+#ListenAddress={T}appserver.listen.ip{/T}
+#ListenPort={T}appserver.port{/T}
+#JndiPort={T}jboss.jndi.port{/T}
+
+# region and language to be set for default Java locale
+#LOCALE_REGION={T}locale.region{/T}
+#LOCALE_LANGUAGE={T}locale.lang{/T}
+
+if [ -f ${DOMAIN_DIR}/environment/token/env.properties ]; then
+    export ADDITIONAL_PROPERTIES="-P${DOMAIN_DIR}/environment/token/env.properties"
+else
+    export ADDITIONAL_PROPERTIES="-P${DOMAIN_DIR}/environment/default/default.env.properties"
+fi
 
 # Setup of standard variables and settings.
 
+# This section sould really check for the existence of env.properties and that these are set, if not use defaults.
 if [ -n JAVA_OPTS='' ]; then
     export JAVA_OPTIONS='-Xms128m -Xmx512m -XX:MaxPermSize=256m -Dorg.jboss.resolver.warning=true -Dsun.rmi.dgc.client.gcInterval=3600000 -Dsun.rmi.dgc.server.gcInterval=3600000 -Djava.endorsed.dirs=${JBOSS_HOME}/lib/endorsed'
 else
