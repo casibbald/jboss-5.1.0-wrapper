@@ -1,5 +1,5 @@
-# vim: tabstop=4 shiftwidth=4 softtabstop=4
 #!/usr/bin/env python
+# vim: tabstop=4 shiftwidth=4 softtabstop=4
 
 import pwd
 import os
@@ -41,7 +41,7 @@ def _convert_ip_port(array):
     host,port = array.split(':')
     return _ip(host),_hex2dec(port)
  
-def netstat():
+def get_netstat():
     '''
     Function to return a list with status of tcp connections at linux systems
     To get pid of all network process running on system, you must run this script
@@ -67,6 +67,20 @@ def netstat():
         nline = [tcp_id, uid, l_host+':'+l_port, r_host+':'+r_port, state, pid, exe]
         result.append(nline)
     return result
+
+def netstat():
+    print '%4s %s %s %s %s %s %s' % ("Id", "User".ljust(10),
+                                                "Local IP:Port".ljust(20),
+                                                "Remote IP:Port".ljust(20),
+                                                "State".ljust(14),
+                                                "Pid".ljust(8),
+                                                "Executable".ljust(30))
+    for conn in get_netstat():
+        print '%4s %s %s %s %s %s %s' % (conn[0], conn[1].ljust(10), conn[2].ljust(20),
+                                                       conn[3].ljust(20), conn[4].ljust(14),
+                                                       str(conn[5]).ljust(8), str(conn[6]).ljust(30))
+
+
  
 def _get_pid_of_inode(inode):
     '''
@@ -82,5 +96,6 @@ def _get_pid_of_inode(inode):
     return None
  
 if __name__ == '__main__':
-    for conn in netstat():
-        print conn
+#    for conn in get_netstat():
+#        print conn
+    netstat()
