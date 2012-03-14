@@ -5,6 +5,14 @@ import sys
 import subprocess
 import stat
 import time
+import platform
+
+def get_os_seperator():
+    if platform.system() == 'Windows':
+        return ['\\', ''.join(['..', '\\'])]
+    else:
+        return ["/", r'../']
+
 
 def check_environment_vars():
     envars = ['MAVEN_HOME', 'HTTP_PROXY_PORT', 'HTTP_PROXY_HOST',
