@@ -3,6 +3,7 @@
 import ConfigParser
 import os
 import sys 
+from xml.dom.minidom import parse, parseString
 
 from utils import singleton
 from utils import get_os_seperator

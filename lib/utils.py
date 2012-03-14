@@ -25,6 +25,21 @@ def check_environment_vars():
     global mvn
     mvn = os.path.join(os.getenv('MAVEN_HOME'), 'bin', 'mvn')
 
+def read_xml(self, xml_file):
+    if os.path.isfile(xml_file):
+        f = open(pom_file, 'r')
+        raw_xml = f.read()
+        f.close()
+        xml = parseString(raw_xml)
+    return xml
+
+def write_xml(self, dom, pom_file):
+    if os.path.isfile(pom_file):
+        f = open(pom_file, 'w')
+        f.write(dom.toxml())
+        f.close()
+
+
 def locate(pattern, root=os.curdir):
     '''Locate all files matching supplied filename pattern
     in and below supplied root directory.'''
