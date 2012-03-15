@@ -36,9 +36,6 @@ class Config(object):
             except Exception as e:
                 print "Error Detected: {0}".format(e)
                 return False
-
-
-
  
         #                                  SectionName          Option        DefaultValueIfNotSet
         self.default_config_dictionary = {  'Authentication'    :   {'username'    : 'daffy',
