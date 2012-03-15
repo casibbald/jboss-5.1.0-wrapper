@@ -14,20 +14,14 @@ seperator = get_os_seperator()
 class Config(object):
    
     def __init__(self, config_file=None):
-        self.config_dir = os.path.join(os.path.abspath(__file__), seperator[1], 'environment')
+        self.config_dir = os.path.join(os.path.dirname(os.path.abspath(__file__)), seperator[1], 'environment')
         self.default_config_file = os.path.join(self.config_dir, 'default', 'env.properties')
         self.custom_config_file = os.path.join(self.config_dir, 'custom', 'env.properties')
-        self.config = self.read_config_file(self.config_file)
+        self.config = self.read_config_file(self.default_config_file)
  
         #                                  SectionName          Option        DefaultValueIfNotSet
         self.default_config_dictionary = {'Authentication' :    {'username'    : 'daffy',
                                                                  'password'    : 'duck'},
-        'Nexus'          :    {'hostname'    : 'localhost',
-                               'port'        : '8081'},
-        'Subversion'     :    {'hostname'    : 'localhost',
-                               'port'        : '80',
-                               'protocol'    : 'http',
-                               'base_project': 'canvas'},
         'SMTP'           :    {'hostname'    : 'localhost',
                                'port'        : '25',
                                'debug'       : True,
