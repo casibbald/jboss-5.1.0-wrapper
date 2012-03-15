@@ -7,6 +7,7 @@ from xml.dom.minidom import parse, parseString
 
 from utils import singleton
 from utils import get_os_seperator
+from filer import Filer
 
 seperator = get_os_seperator()
 
@@ -18,18 +19,38 @@ class Config(object):
         self.default_config_file = os.path.join(self.config_dir, 'default', 'env.properties')
         self.custom_config_file = os.path.join(self.config_dir, 'custom', 'env.properties')
         self.config = self.read_config_file(self.default_config_file)
+                    
+        if not os.path.exists(os.path.dirname(self.custom_config_file)):
+            try:
+                os.makedirs(os.path.dirname(self.custom_config_file))
+                f = Filer()
+                f.createFile(self.custom_config_file)
+            except Exception as e:
+                print "Error Detected: {0}".format(e)
+                return False
+                
+        elif not os.path.isfile(self.custom_config_file):
+            try:
+                f = Filer()
+                f.createFile(self.custom_config_file)
+            except Exception as e:
+                print "Error Detected: {0}".format(e)
+                return False
+
+
+
  
         #                                  SectionName          Option        DefaultValueIfNotSet
-        self.default_config_dictionary = {'Authentication' :    {'username'    : 'daffy',
-                                                                 'password'    : 'duck'},
-        'SMTP'           :    {'hostname'    : 'localhost',
-                               'port'        : '25',
-                               'debug'       : True,
-                               'mail_domain' : 'mydomain' },
-        'Notification': {'author'  : 'me@mydomain',
-                         'alpha'   : 'me', 
-                         'beta'    : '',
-                         'release' : ''},
+        self.default_config_dictionary = {  'Authentication'    :   {'username'    : 'daffy',
+                                                                     'password'    : 'duck'},
+                                            'SMTP'              :   {'hostname'    : 'localhost',
+                                                                     'port'        : '25',
+                                                                     'debug'       : True,
+                                                                     'mail_domain' : 'mydomain' },
+                                            'Notification'      :   {'author'      : 'me@mydomain',
+                                                                     'alpha'       : 'me', 
+                                                                     'beta'        : '',
+                                                                     'release'     : ''},
       }
 
 
@@ -51,24 +72,26 @@ class Config(object):
  
     def read_config_file(self, config_file):
         config = ConfigParser.ConfigParser()
-        if config_file == None:
-            self.config_file = self.default_config_file
-            if  os.path.exists(self.config_file):
-                try:
-                    config.readfp(open(self.config_file))
-                except IOError:
-                    pass # TODO CHECK EXCEPTION AND LOG
-            else:
-                config.readfp(open(self.config_file))
-        else:
+        if  os.path.exists(self.custom_config_file):
             try:
-                config.readfp(open(config_file))
+                config.readfp(open(self.custom_config_file))
+                return config
             except IOError:
                 pass # TODO CHECK EXCEPTION AND LOG
-        return config
- 
-    def write_config(self, config):
-        config_file = self.default_config_file
+        else:
+            try:
+                config.readfp(open(self.default_config_file))
+                return config
+            except IOError:
+                pass # TODO CHECK EXCEPTION AND LOG            
+
+
+    def write_config(self, config, use_default=True):
+        if use_default==True:    
+            config_file = self.default_config_file
+        else:
+            config_file = self.custom_config_file
+
         if os.path.exists(os.path.dirname(config_file)):         
             try:
                 with open(config_file, 'wb') as configfile:
@@ -76,16 +99,13 @@ class Config(object):
             except Exception as e:
                 print "Error Detected: {0}".format(e)
                 return False
-        elif not os.path.exists(os.path.dirname(config_file)):
+        else:
             try:
-                os.makedirs(os.path.dirname(config_file))
                 with open(config_file, 'wb') as configfile:
                     config.write(configfile)
             except Exception as e:
                 print "Error Detected: {0}".format(e)
                 return False
-        else:
-            pass  
  
     def has_section(self, config, section):
         try:
