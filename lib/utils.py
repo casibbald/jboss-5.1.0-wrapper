@@ -6,6 +6,7 @@ import subprocess
 import stat
 import time
 import platform
+from xml.dom.minidom import parse, parseString
 
 def get_os_seperator():
     if platform.system() == 'Windows':
@@ -25,17 +26,17 @@ def check_environment_vars():
     global mvn
     mvn = os.path.join(os.getenv('MAVEN_HOME'), 'bin', 'mvn')
 
-def read_xml(self, xml_file):
+def read_xml(xml_file):
     if os.path.isfile(xml_file):
-        f = open(pom_file, 'r')
+        f = open(xml_file, 'r')
         raw_xml = f.read()
         f.close()
         xml = parseString(raw_xml)
     return xml
 
-def write_xml(self, dom, pom_file):
-    if os.path.isfile(pom_file):
-        f = open(pom_file, 'w')
+def write_xml(dom, xml_file):
+    if os.path.isfile(xml_file):
+        f = open(xml_file, 'w')
         f.write(dom.toxml())
         f.close()
 
