@@ -1,7 +1,7 @@
 # vim: tabstop=4 shiftwidth=4 softtabstop=4
-from xml.dom.minidom import parse, parseString
+import xml.dom.minidom
 
-class noobPath(object):
+class noobPath(xml.dom.minidom):
     def __init__(self, dom):
         self.dom = dom
     

@@ -39,4 +39,9 @@ if __name__ == '__main__':
     >>>u'description'
 
 
-deployment bean constructor parameter bean 
+path = [["deployment",{"xmlns":"urn:jboss:bean-deployer:2.0"}],
+    ["bean",{"name":"StandardBindings" "class":"java.util.HashSet"}, 15],
+    "constructor",
+    ["parameter", {"class":"java.util.Collection"}],
+    ["bean", {"class":"org.jboss.services.binding.ServiceBindingMetadata"}],
+    ["property", {"name":"serviceName"}]]
