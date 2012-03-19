@@ -1,7 +1,7 @@
 # vim: tabstop=4 shiftwidth=4 softtabstop=4
-import xml.dom.minidom
+from xml.dom.minidom import parse, parseString
 
-class noobPath(xml.dom.minidom):
+class noobPath(parseString):
     def __init__(self, dom):
         self.dom = dom
     
@@ -10,7 +10,10 @@ class noobPath(xml.dom.minidom):
     
     def walk(self, path):
         pass
-
+    
+    def is_path(self, path):
+        pass
+    
     def has_nodeName(self, path):
         pass
     
