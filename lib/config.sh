@@ -87,19 +87,16 @@ case $(uname) in
     
             echo "Detecting JBOSS_HOME"
             if [ -n JBOSS_HOME ]; then
-                if [ -d  '/usr/jboss/jboss-5.1.0.GA' ] ; then
+                if [ -d  '/usr/local/jboss/jboss-5.1.0.GA' ] ; then
                     echo "Auto Setting JBOSS_HOME for jboss-5.1.0.GA"
-                    export JBOSS_HOME='/usr/jboss/jboss-5.1.0.GA'
-                elif [ -d  '/opt/jboss/jboss-5.1.0.GA' ] ; then
-                    echo "Auto Setting JBOSS_HOME for jboss-5.1.0.GA"
-                    export JBOSS_HOME='/opt/jboss/jboss-5.1.0.GA'
+                    export JBOSS_HOME='/usr/local/jboss/jboss-5.1.0.GA'
                 else
                     echo
                     echo "jboss-5.1.0.GA not found"
-                    echo "Consider installing under /usr/jboss/jboss-5.1.0.GA"
+                    echo "Consider installing under /usr/local/jboss/jboss-5.1.0.GA"
                     echo "Many environments choose to install under /opt/jboss<version>,"
                     echo "and while this is the default location when using the JBoss"
-                    echo "Installer, we have a preference for /usr/jboss/jboss-<version>"
+                    echo "Installer, we have a preference for /usr/local/jboss/jboss-<version>"
                     echo "for the simple reason that the wrapper Abstracts away the need"
                     echo "to deploy files directly into the JBoss install, but in a safe"
                     echo "and customisable location, that allows the user of the wrapper"
