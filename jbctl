@@ -3,11 +3,11 @@
 #
 # Author          : Charles Sibbald
 # Email           : casibbald at gmail dot com
-# Contributors    : Attila Faludi, Peter Moore
+# Contributors    : 
 # License         : BSD
 # Copyright (c) 2012 Origami Planes Ltd.
-# All rights reserved, exluding that of external software or modules from 3rd
-# Parties.
+# All rights reserved, excluding that of external software or modules
+# from 3rd Parties.
 # Redistribution and use in source and binary forms are permitted
 # provided that the above copyright notice and this paragraph are
 # duplicated in all such forms and that any documentation,
@@ -26,7 +26,7 @@
 set -eu
 set -o pipefail
 
-chmod +x ./lib/config.sh
+chmod +x ./src/lib/config.sh
 COMMAND=$1
 if [ $1 == '' ]; then
     echo "Please pass one of the following options: start | stop | kill"
@@ -47,7 +47,7 @@ else
    URI_PREFIX="file:"
 fi
 
-. ./lib/config.sh
+. ./src/lib/config.sh
 
 
 case "${COMMAND}" in
