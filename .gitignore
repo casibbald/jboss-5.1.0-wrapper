@@ -1,4 +1,6 @@
 *.komodoproject
+.project
+.pydevproject
 *.pyc
 apps/*
 logs/*

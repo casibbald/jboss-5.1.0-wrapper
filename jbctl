@@ -1,13 +1,14 @@
-#!/usr/bin/env bash
+#!/usr/bin/env python
+# vim: tabstop=4 shiftwidth=4 softtabstop=4
 ###############################################################################
 #
 # Author          : Charles Sibbald
 # Email           : casibbald at gmail dot com
-# Contributors    : Attila Faludi, Peter Moore
+# Contributors    : 
 # License         : BSD
 # Copyright (c) 2012 Origami Planes Ltd.
-# All rights reserved, exluding that of external software or modules from 3rd
-# Parties.
+# All rights reserved, excluding that of external software or modules
+# from 3rd Parties.
 # Redistribution and use in source and binary forms are permitted
 # provided that the above copyright notice and this paragraph are
 # duplicated in all such forms and that any documentation,
@@ -21,114 +22,74 @@
 # WARRANTIES OF MERCHANTABILITY AND FITNESS FOR A PARTICULAR PURPOSE.
 # 
 ###############################################################################
-#set -x
 
-set -eu
-set -o pipefail
+import os
+import sys
 
-chmod +x ./lib/config.sh
-COMMAND=$1
-if [ $1 == '' ]; then
-    echo "Please pass one of the following options: start | stop | kill"
-    exit 1
-fi
-
-function get_seconds_since_epoch {
-    perl -e "print time;"
-}
-
-# Normalise scripts running location.
-if uname -s | grep CYG > /dev/null 2>&1 ; then
-   DOMAIN_DIR=`cygpath -m -a .`
-   URI_PREFIX="file:/"
-else
-   cd "$(dirname "${0}")"
-   export DOMAIN_DIR="$(pwd)"
-   URI_PREFIX="file:"
-fi
-
-. ./lib/config.sh
+if (sys.version_info[0],sys.version_info[1]) == (2, 4):
+    try:
+        import argparse
+    except Exception, e:
+        try:
+            import yum #easy way to detect Redhat... will look for another option at some other point. 
+            print
+            print 'ERROR: failed to import argprse module, try installing the python-argparse.noarch rpm.'
+            print 'yum install -y python-argparse'
+            sys.exit(1)
+        except:
+            pass
+elif (sys.version_info[0],sys.version_info[1]) == (2, 6) or (2, 7) or (3, 3):
+    import argparse
 
 
-case "${COMMAND}" in
-    start)
+jbosswrapper_parser = argparse.ArgumentParser(description='''A Complete Wrapper domain for JBoss.''',
+                                 add_help=True)
+jbosswrapper_parser.add_argument('--show-config', action="store_true",
+                            help="""""")
 
-        # Clean up previous temp directories.
-        echo "========================================================================="
-        echo "   Cleaning up JBoss temporary directories in preparation for JVM Launch"
-        echo "   This may take a while"
-        echo
-        for dir in data log tmp; do
-            echo "   Cleaning out ${SERVER_NAME}/${dir}"
-            rm -rf ${SERVER_NAME}/${dir}
-        done;
+prepare_parser = argparse.ArgumentParser(parents=[jbosswrapper_parser], add_help=False)
+prepare_parser.add_argument('--start', required=True, help='Start JBoss Domain', action="store", type=str)
+prepare_parser.add_argument('--stop', required=True, help='Graceful shutdown of JBoss Domain', action="store", type=str)
+prepare_parser.add_argument('--kill', required=True, help='Hard kill of JBoss Domain', action="store", type=str)
+prepare_parser.add_argument('--status', required=True, help='Check if JBoss is running (Does PID and port conflict Check', action="store", type=str)
+
+
+def main():
+    options = prepare_parser.parse_args()
+    if not os.path.exists(options.config):
+        print
+        print 'ERROR: File %s not found, check the path and try again' % (options.config)
+        print
+        sys.exit(1)
         
-        echo "======================================================================="
-        echo "  JBOSS_HOME           : $JBOSS_HOME"
-        echo "  JAVA_HOME            : $JAVA_HOME"
-        echo "  DOMAIN_DIR           : $DOMAIN_DIR"
-        echo "  NOHUP_OUT_DIR        : ${DOMAIN_DIR}/$NOHUP_OUT_DIR"
-        echo "  RUNTIME_DIR          : $SERVER_NAME"
-        echo "======================================================================="
-        echo
+    if not os.path.exists(os.path.dirname(options.output)):
+        print
+        print 'ERROR: Path to %s not found, check the path and try again' % (options.config)
+        print
+        sys.exit(1)
 
-        #python lib/configure.py
-        PID_STATUS=get_wrapper_run_status
-        if [ "$PID_STATUS" != "1" ];then
-            (
-            #Do not quote JAVA_OPTIONS
-            nohup ${JAVA_HOME}/bin/java ${JAVA_OPTIONS} \
-                  -classpath "${CLASSPATH}" \
-                   org.jboss.Main \
-                  -Djboss.server.base.url="${URI_PREFIX}${DOMAIN_DIR}" \
-                  -Djboss.server.base.dir="${DOMAIN_DIR}" \
-                  -Djboss.server.name="${SERVER_NAME}" \
-                  -Djboss.server.apps="${DOMAIN_DIR}/apps" \
-                  -Djboss.server.log.dir="${DOMAIN_DIR}/logs" \
-                  -b "${INTERFACE}" \
-                  -c "${SERVER_NAME}" &
-            echo $! > $PIDFILE
-            ) | "${CRONOLOG}" >/dev/null 2>&1 "${DOMAIN_DIR}/${NOHUP_OUT_DIR}/nohup.out_%Y%m%d_%H" --link="${DOMAIN_DIR}/${NOHUP_OUT_DIR}/nohup.out" &
-        else
-            echo "Jboss Container already running"
-            exit 1
-        fi
-    ;;
-
-    status)
-        if [ get_wrapper_run_status == "0" ]; then
-            echo "JBoss Container running"
-            exit 0
-        else
-            echo "JBoss Container not running"
-            exit 1
-        fi
+    if os.path.isdir(options.output):
+        print
+        print 'ERROR: %s is a directory, provide a full path and file name' % (options.output)
+        print 'eg: %s' % (os.path.join(os.path.expanduser('~'), 'my-output-file.xml'))
+        print
+        sys.exit(1)
+    
+    if options.show_config:
+        from jbosswrapper.impl.configuration import ConfigReader
+        C = ConfigReader(options.config)
+        print
+        C.show_config()
+    elif options.config and options.output and not options.show_config:
+        from jbosswrapper.impl.transform import generate_xml
+        print
+        print 'Running xml transform...'
+        print 'Check %s/ directory for output.' % (os.path.dirname(options.output))
+        print
+        generate_xml(options.config, options.output)
         
-    ;;
-    
-    
-    stop)
-        JBOSS_BOOT_CLASSPATH="${JBOSS_HOME}/bin/shutdown.jar:${JBOSS_HOME}/client/jbossall-client.jar"
-        CLASSPATH="${CLASSPATH}:${JBOSS_BOOT_CLASSPATH}"
-        #Do not quote JAVA_OPTIONS
-        ${JAVA_HOME}/bin/java ${JAVA_OPTIONS} -classpath "${CLASSPATH}" org.jboss.Shutdown "$@"
+if __name__ == '__main__':
+    main()
 
-    ;;
- 
-    kill)
-        PID_STATUS=get_wrapper_run_status
-        PID=`cat ${PIDFILE}`
-        if [ "$PID_STATUS" = "1" ] ; then
-            echo " Killing JBoss at PID ${PID} ..."
-            kill -9 ${PID}
-            rm -f ${PIDFILE}
-            exit 0
-        else
-            echo "PID file indicates PID ${PID}, is not running."
-            exit 0
-        fi
-
-
-esac
 
 
