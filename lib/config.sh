@@ -54,6 +54,9 @@ case $(uname) in
             if [ -d  '/opt/local/share/jboss-5.1.0.GA' ] ; then
                 echo "Auto Setting JBOSS_HOME for jboss-5.1.0.GA"
                 export JBOSS_HOME='/opt/local/share/jboss-5.1.0.GA'
+            elif [ -d '/usr/local/jboss-5.1.0.GA' ]; then
+                echo "Auto Setting JBOSS_HOME for jboss-5.1.0.GA"
+                export JBOSS_HOME='/usr/local/jboss-5.1.0.GA'
             else
                 echo "jboss-5.1.0.GA not found"
                 echo "consider installing under /opt/local/share"
