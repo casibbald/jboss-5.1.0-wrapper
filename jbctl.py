@@ -48,40 +48,22 @@ jbosswrapper_parser.add_argument('--show-config', action="store_true",
                             help="""""")
 
 prepare_parser = argparse.ArgumentParser(parents=[jbosswrapper_parser], add_help=False)
-prepare_parser.add_argument('--start', required=True, help='Start JBoss Domain', action="store", type=str)
-prepare_parser.add_argument('--stop', required=True, help='Graceful shutdown of JBoss Domain', action="store", type=str)
-prepare_parser.add_argument('--kill', required=True, help='Hard kill of JBoss Domain', action="store", type=str)
-prepare_parser.add_argument('--status', required=True, help='Check if JBoss is running (Does PID and port conflict Check', action="store", type=str)
+prepare_parser.add_argument('--start', required=False, help='Start JBoss Domain', action="store", type=str)
+prepare_parser.add_argument('--stop', required=False, help='Graceful shutdown of JBoss Domain', action="store", type=str)
+prepare_parser.add_argument('--kill', required=False, help='Hard kill of JBoss Domain', action="store", type=str)
+prepare_parser.add_argument('--status', required=False, help='Check if JBoss is running (Does PID and port conflict Check', action="store", type=str)
 
 
 def main():
     options = prepare_parser.parse_args()
-    if not os.path.exists(options.config):
-        print
-        print 'ERROR: File %s not found, check the path and try again' % (options.config)
-        print
-        sys.exit(1)
-        
-    if not os.path.exists(os.path.dirname(options.output)):
-        print
-        print 'ERROR: Path to %s not found, check the path and try again' % (options.config)
-        print
-        sys.exit(1)
-
-    if os.path.isdir(options.output):
-        print
-        print 'ERROR: %s is a directory, provide a full path and file name' % (options.output)
-        print 'eg: %s' % (os.path.join(os.path.expanduser('~'), 'my-output-file.xml'))
-        print
-        sys.exit(1)
     
     if options.show_config:
-        from jbosswrapper.impl.configuration import ConfigReader
+        from src.impl.configuration import ConfigReader
         C = ConfigReader(options.config)
         print
         C.show_config()
     elif options.config and options.output and not options.show_config:
-        from jbosswrapper.impl.transform import generate_xml
+        from src.impl.transform import generate_xml
         print
         print 'Running xml transform...'
         print 'Check %s/ directory for output.' % (os.path.dirname(options.output))
